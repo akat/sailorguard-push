@@ -1,0 +1,43 @@
+version: "3.8"
+
+# Production stack for https://push.sailorguard.com behind the shared Traefik
+# (network "proxy", Let's Encrypt resolver "le"). Set the secrets below as
+# stack environment variables in Portainer; never commit them.
+
+services:
+  sailorguard-push:
+    image: ${IMAGE:-ghcr.io/akat/sailorguard-push:latest}
+    pull_policy: always
+    restart: unless-stopped
+    environment:
+      PORT: 8080
+      DB_FILE: /data/sailorguard-push.db
+      TRUST_PROXY: "1"
+      ADMIN_TOKEN: ${ADMIN_TOKEN}
+      # Expo: set when "Enhanced push security" is enabled for the Expo project.
+      EXPO_ACCESS_TOKEN: ${EXPO_ACCESS_TOKEN}
+      # APNs (token-based). APNS_KEY is the full .p8 PEM on one line, newlines as \n.
+      APNS_KEY: ${APNS_KEY}
+      APNS_KEY_ID: ${APNS_KEY_ID}
+      APNS_TEAM_ID: ${APNS_TEAM_ID}
+      APNS_BUNDLE_ID: ${APNS_BUNDLE_ID:-com.akat78.sixpack}
+      APNS_HOST: ${APNS_HOST:-api.push.apple.com}
+    volumes:
+      - sailorguard-push-data:/data
+    labels:
+      - "traefik.enable=true"
+      - "com.centurylinklabs.watchtower.enable=true"
+      - "traefik.docker.network=proxy"
+      - "traefik.http.routers.sailorguard-push.rule=Host(`push.sailorguard.com`)"
+      - "traefik.http.routers.sailorguard-push.entrypoints=websecure"
+      - "traefik.http.routers.sailorguard-push.tls.certresolver=le"
+      - "traefik.http.services.sailorguard-push.loadbalancer.server.port=8080"
+    networks:
+      - proxy
+
+volumes:
+  sailorguard-push-data:
+
+networks:
+  proxy:
+    external: true

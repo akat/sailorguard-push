@@ -1,0 +1,16 @@
+{
+  "name": "sailorguard-push",
+  "version": "0.1.0",
+  "private": true,
+  "description": "SailorGuard push gateway (push.sailorguard.com): holds the APNs and Expo credentials and delivers boat alarms to the app.",
+  "main": "src/server.js",
+  "engines": {
+    "node": ">=22.13"
+  },
+  "scripts": {
+    "start": "node --disable-warning=ExperimentalWarning src/server.js",
+    "test": "node --disable-warning=ExperimentalWarning --test test/*.test.js"
+  },
+  "author": "Angelos Katsaris",
+  "license": "UNLICENSED"
+}
